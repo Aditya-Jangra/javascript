@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Link Analyser",
+  "version": "1.0",
+  "description": "Analyse all links on a webpage",
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "browser_style": true
+  }
+}

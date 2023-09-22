@@ -1,0 +1,171 @@
+<html>
+<head>
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Calculator</h1>
+  <input type="number" id="num1" placeholder="Enter first number">
+  <select id="operator">
+    <option value="+">+</option>
+    <option value="-">-</option>
+    <option value="*">*</option>
+    <option value="/">/</option>
+  </select>
+  <input type="number" id="num2" placeholder="Enter second number">
+  <button id="calculate">Calculate</button>
+  <button id="clear-all">Clear All</button>
+  <table id="history">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Number 1</th>
+        <th>Number 2</th>
+        <th>Operator</th>
+        <th>Result</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    
+        const num1Input = document.getElementById('num1');
+        const operatorSelect = document.getElementById('operator');
+        const num2Input = document.getElementById('num2');
+        const calculateButton = document.getElementById('calculate');
+        const clearAllButton = document.getElementById('clear-all');
+        const historyTable = document.getElementById('history').querySelector('tbody');
+
+
+        calculateButton.addEventListener('click', calculate);
+        clearAllButton.addEventListener('click', clearAll);
+        historyTable.addEventListener('click', deleteRow);
+
+        let history = JSON.parse(sessionStorage.getItem('history')) || [];
+
+        history.sort((a, b) => b.timestamp - a.timestamp);
+        displayHistory();
+
+        function calculate() {
+       
+        const num1 = parseFloat(num1Input.value);
+        const operator = operatorSelect.value;
+        const num2 = parseFloat(num2Input.value);
+
+   
+        if (isNaN(num1) || isNaN(num2)) {
+            alert('Please enter valid numbers');
+            return;
+        }
+        let result;
+        switch (operator) {
+            case '+':
+            result = num1 + num2;
+            break;
+            case '-':
+            result = num1 - num2;
+            break;
+            case '*':
+            result = num1 * num2;
+            break;
+            case '/':
+            result = num1 / num2;
+            break;
+        }
+
+       
+        const calculation = {
+            timestamp: Date.now(),
+            num1: num1,
+            num2: num2,
+        };
+
+        calculation.operator = operator;
+        calculation.result = result;
+        history.push(calculation);
+
+        
+        sessionStorage.setItem('history', JSON.stringify(history));
+
+       
+        history.sort((a, b) => b.timestamp - a.timestamp);
+        displayHistory();
+
+       
+        num1Input.value = '';
+        num2Input.value = '';
+        }
+
+        function clearAll() {
+        
+        history = [];
+        sessionStorage.removeItem('history');
+
+      
+        historyTable.innerHTML = '';
+        }
+
+        function deleteRow(event) {
+        const row = event.target.closest('tr');
+        if (!row || !row.dataset.id) return;
+
+        const id = parseInt(row.dataset.id);
+        const index = history.findIndex(item => item.timestamp === id);
+        if (index === -1) return;
+
+       
+        history.splice(index, 1);
+    
+        history.splice(index, 1);
+
+        
+        sessionStorage.setItem('history', JSON.stringify(history));
+
+        
+        historyTable.removeChild(row);
+        }
+
+        function displayHistory() {
+        
+        historyTable.innerHTML = '';
+
+        
+        for (const calculation of history) {
+        const row = document.createElement('tr');
+        row.dataset.id = calculation.timestamp;
+
+        const timestampCell = document.createElement('td');
+        const timestamp = new Date(calculation.timestamp).toLocaleString();
+        timestampCell.textContent = timestamp;
+        row.appendChild(timestampCell);
+
+        const num1Cell = document.createElement('td');
+        num1Cell.textContent = calculation.num1;
+        row.appendChild(num1Cell);
+
+        const num2Cell = document.createElement('td');
+        num2Cell.textContent = calculation.num2;
+        row.appendChild(num2Cell);
+        const operatorCell = document.createElement('td');
+            operatorCell.textContent = calculation.operator;
+            row.appendChild(operatorCell);
+
+            const resultCell = document.createElement('td');
+            resultCell.textContent = calculation.result;
+            row.appendChild(resultCell);
+
+            const deleteCell = document.createElement('td');
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-row');
+            deleteButton.textContent = 'Delete';
+            deleteCell.appendChild(deleteButton);
+            row.appendChild(deleteCell);
+
+            historyTable.appendChild(row);
+        }
+        }
+
+  </script>
+</body>
+</html>
